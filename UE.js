@@ -3,9 +3,9 @@
 *Email:520ued.com@gmail.com
 *Visit http://www.520ued.com/UE/ for more info.
 *(c) 2013-2014 owenhong, http://www.520ued.com/
+*github:https://github.com/owen-hong/UE
 *versions:1.0.0
 */
-
 ;(function (root, factory){
     'use strict';
 
@@ -15,7 +15,7 @@
         // CommonJS 模块
         // 加载 moment.js as 作为依赖
         try { moment = require('moment'); } catch (e) {}
-        module.exports = factory(moment);
+        module.exports = factory(moment,window,document,undefined);
     } else if (typeof define === 'function' && define.amd) {
         // AMD. 注册一个匿名模块.
         define(function (req)
@@ -23,13 +23,13 @@
             // 加载 moment.js 作为可选依赖
             var id = 'moment';
             moment = req.defined && req.defined(id) ? req(id) : undefined;
-            return factory(moment);
+            return factory(moment,window,document,undefined);
         });
     } else {
-        root.ue = factory(root.moment);
+        root.UE = factory(root.moment,window,document,undefined);
     }
 
-}(this, function (moment){
+}(this, function (moment,window,document,undefined){
     'use strict';
 
     var hasMoment = typeof moment === 'function',
@@ -41,24 +41,21 @@
         this.jsPath  = jsPath;
         this.externalPath =  jsPath + "external/";
         this.otherPath =  jsPath + "other/";
-        this.modulePath = jsPath + "module/"
-
+        this.modulePath = jsPath + "module/";
     };
 
     ue.prototype = {
         //set root init
         init : function(options){
-
             var ops = options || {};
-
             this.jsPath = ops.jsPath || this.jsPath;
             this.externalPath = ops.externalPath || this.externalPath;
             this.otherPath = ops.otherPath || this.otherPath;
             this.module = ops.modulePath || this.modulePath;
         },
-    }
+    };
     //script load JS adn CSS
-    ue.prototype.Load = (function(){
+    ue.prototype.Load = (function(window,document){
         var env,
             doc = document,
             head,
@@ -248,101 +245,8 @@
                 load('js', urls, callback, obj, context);
             }
         }
-    })();
+    })(window,document);
 
-    return ue;
+    return new ue();
 })
 );
-var UE = new ue();
-
-//选择数量
-UE.Quantity = function(options){
-    var ops = options || {};
-
-    $(ops.minus).click(function(){
-        var $num = parseInt($(this).siblings(ops.num).text());
-        if($num > 1){
-            $num -= 1;
-            $(this).siblings(ops.num).text($num);
-        }
-    });
-    
-    $(ops.plus).click(function(){
-        var $num = parseInt($(this).siblings(ops.num).text());
-        $num += 1;
-        $(this).siblings(ops.num).text($num);
-    });
-}
-
-//置顶
-UE.ScrollTop = function(options){
-    'use strict';
-    var ops = options || {},
-        doc = document,
-        lastTime,
-        $top = 0;
-
-    $(doc).scroll(function(event) {
-
-        var $cur_time = $(doc).scrollTop();
-
-        $(ops.divWrap).removeClass(ops.class);
-
-        lastTime = event.timeStamp;
-        setTimeout(function(){ 
-            if(lastTime - event.timeStamp == 0){
-                var $new_top = $(doc).scrollTop();
-
-                if($new_top <= $top){
-                    if($cur_time > 500){
-                        $(ops.divWrap).addClass(ops.class).css({
-                            top: '0px',
-                        });
-                    }
-                }
-
-                $top = $(doc).scrollTop();
-            }
-        },300);
-    });
-};
-//置尾
-UE.ScrollBottom = function(options){
-
-    'use strict';
-
-    var ops = options || {},
-        doc = document,
-        win = window,
-        $scrollBottom = $(doc).height() - $(win).height() - $(win).scrollTop(),
-        $stop = $("footer").height() + $(ops).outerHeight(true) + 20;
-
-
-    if($scrollBottom<$stop){
-        $(ops).removeClass("bottom_fixed");
-    }
-
-    $(doc).scroll(function(event) {
-        var $scrollBottom = $(doc).height() - $(win).height() - $(win).scrollTop();
-
-        if($scrollBottom < 180){
-            $(ops).removeClass("bottom_fixed");
-        }else{
-            $(ops).addClass('bottom_fixed');
-        }
-    });
-
-};
-//切换选项
-UE.changeTab = function(options){
-    'use strict';
-    var ops = options || {};
-    ops.event = ops.event || "click";
-    ops.class = ops.class || "cur";
-
-    $(ops.tabId).on(ops.event,function(){
-        var $idx = $(this).index();
-        $(this).addClass(ops.class).siblings().removeClass(ops.class);
-        $(ops.contentId).children(ops.contentChild).eq($idx).show().siblings().hide();
-    });
-};
