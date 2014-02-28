@@ -12,15 +12,15 @@
     var moment;
 
     if (typeof exports === 'object') {
-        // CommonJS Ä£¿é
-        // ¼ÓÔØ moment.js as ×÷ÎªÒÀÀµ
+        // CommonJS æ¨¡å—
+        // åŠ è½½ moment.js as ä½œä¸ºä¾èµ–
         try { moment = require('moment'); } catch (e) {}
         module.exports = factory(moment,window,document,undefined);
     } else if (typeof define === 'function' && define.amd) {
-        // AMD. ×¢²áÒ»¸öÄäÃûÄ£¿é.
+        // AMD. æ³¨å†Œä¸€ä¸ªåŒ¿åæ¨¡å—.
         define(function (req)
         {
-            // ¼ÓÔØ moment.js ×÷Îª¿ÉÑ¡ÒÀÀµ
+            // åŠ è½½ moment.js ä½œä¸ºå¯é€‰ä¾èµ–
             var id = 'moment';
             moment = req.defined && req.defined(id) ? req(id) : undefined;
             return factory(moment,window,document,undefined);
@@ -36,9 +36,11 @@
 
     ue = function(){
 
-        var jsPath = typeof JS_PATH == "undefined" ? "js/" : JS_PATH;
+        var jsPath = typeof JS_PATH == "undefined" ? "js/" : JS_PATH,
+            jsDebug = typeof JS_DEBUG == "undefined" ? true : JS_DEBUG;
 
         this.jsPath  = jsPath;
+        this.jsDebug = jsDebug;
         this.externalPath =  jsPath + "external/";
         this.otherPath =  jsPath + "other/";
         this.modulePath = jsPath + "module/";
@@ -114,7 +116,13 @@
             var _finish = function () { finish(type); },
                 isCSS   = type === 'css',
                 nodes   = [],
-                i, len, node, p, pendingUrls, url;
+                i, 
+                len, 
+                node, 
+                p, 
+                pendingUrls, 
+                url,
+                minSwitch;
 
             env || getEnv();
 
@@ -148,6 +156,14 @@
             head || (head = doc.head || doc.getElementsByTagName('head')[0]);
             pendingUrls = p.urls;
 
+            //switch min
+            if(UE.jsDebug===true){
+                minSwitch = ".js";
+            }else{
+                minSwitch = ".min.js";
+
+            }
+
             for (i = 0, len = pendingUrls.length; i < len; ++i) {
                 url = pendingUrls[i];
 
@@ -157,7 +173,7 @@
                         rel : 'stylesheet'
                     });
                 } else {
-                    node = createNode('script', {src: url});
+                    node = createNode('script', {src: url + minSwitch });
                     node.async = false;
                 }
 
