@@ -49,7 +49,9 @@
     ue.prototype = {
         //set root init
         init : function(options){
+
             var ops = options || {};
+
             this.jsPath = ops.jsPath || this.jsPath;
             this.externalPath = ops.externalPath || this.externalPath;
             this.otherPath = ops.otherPath || this.otherPath;
@@ -129,9 +131,10 @@
             if (urls) {
               urls = typeof urls === 'string' ? [urls] : urls.concat();
               if (isCSS || env.async || env.gecko || env.opera) {
+
                 // Load in parallel.
                 queue[type].push({
-                    urls    : urls,
+                    urls    : urls ,
                     callback: callback,
                     obj     : obj,
                     context : context
@@ -161,11 +164,18 @@
                 minSwitch = ".js";
             }else{
                 minSwitch = ".min.js";
-
             }
 
             for (i = 0, len = pendingUrls.length; i < len; ++i) {
                 url = pendingUrls[i];
+
+                if(url.indexOf("jquery-")!==-1){
+                    url = UE.jsPath + url;
+                }else if(url.indexOf("external")!==-1||url.indexOf("other")!==-1){
+                    url = url;
+                }else{
+                    url = UE.modulePath + url;
+                }
 
                 if (isCSS) {
                     node = env.gecko ? createNode('style') : createNode('link', {
@@ -256,7 +266,6 @@
             css: function (urls, callback, obj, context) {
                 load('css', urls, callback, obj, context);
             },
-
             js: function (urls, callback, obj, context) {
                 load('js', urls, callback, obj, context);
             }
